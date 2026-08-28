@@ -1,0 +1,73 @@
+name: agrocenter-ventas
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-db_ventas}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configura POSTGRES_PASSWORD en el archivo .env}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5435}:5432"
+    volumes:
+      - ventas-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - ventas-network
+    security_opt:
+      - no-new-privileges:true
+
+  ms-ventas:
+    image: agrocenter/ms-ventas:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8082
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-db_ventas}
+      DB_USERNAME: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Configura POSTGRES_PASSWORD en el archivo .env}
+      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL:-http://host.docker.internal:8081}
+      INVENTORY_CONNECT_TIMEOUT: ${INVENTORY_CONNECT_TIMEOUT:-2s}
+      INVENTORY_READ_TIMEOUT: ${INVENTORY_READ_TIMEOUT:-3s}
+      INVENTORY_SERVICE_TOKEN: ${INVENTORY_SERVICE_TOKEN:-}
+      COGNITO_ISSUER_URI: ${COGNITO_ISSUER_URI:-http://localhost:9999/mock-cognito}
+      COGNITO_JWK_SET_URI: ${COGNITO_JWK_SET_URI:-http://localhost:9999/mock-cognito/.well-known/jwks.json}
+      COGNITO_AUDIENCE: ${COGNITO_AUDIENCE:-agrocenter-api}
+      DEV_JWT_SECRET: ${DEV_JWT_SECRET:?Configura DEV_JWT_SECRET en el archivo .env}
+      DEV_JWT_ISSUER: ${DEV_JWT_ISSUER:-http://localhost:8081/dev-issuer}
+      SWAGGER_ENABLED: ${SWAGGER_ENABLED:-true}
+      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError}
+    ports:
+      - "${APP_PORT:-8082}:8082"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - ventas-network
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 20s
+
+volumes:
+  ventas-postgres-data:
+
+networks:
+  ventas-network:
+    driver: bridge
