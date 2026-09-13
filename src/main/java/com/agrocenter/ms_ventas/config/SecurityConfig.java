@@ -68,28 +68,7 @@ public class SecurityConfig {
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(cognitoAuthoritiesConverter());
+        converter.setJwtGrantedAuthoritiesConverter(new com.agrocenter.ms_ventas.security.CognitoAuthoritiesConverter());
         return converter;
-    }
-
-    private Converter<Jwt, Collection<GrantedAuthority>> cognitoAuthoritiesConverter() {
-        JwtGrantedAuthoritiesConverter scopeConverter = new JwtGrantedAuthoritiesConverter();
-        return jwt -> {
-            Set<GrantedAuthority> authorities = new LinkedHashSet<>(scopeConverter.convert(jwt));
-            List<String> groups = jwt.getClaimAsStringList("cognito:groups");
-            if (groups != null) {
-                groups.stream()
-                        .map(group -> "ROLE_" + group.toUpperCase(Locale.ROOT))
-                        .map(SimpleGrantedAuthority::new)
-                        .forEach(authorities::add);
-            }
-            String customRole = jwt.getClaimAsString("custom:role");
-            if (customRole != null && !customRole.isBlank()) {
-                authorities.add(new SimpleGrantedAuthority(
-                        "ROLE_" + customRole.toUpperCase(Locale.ROOT)
-                ));
-            }
-            return authorities;
-        };
     }
 }
