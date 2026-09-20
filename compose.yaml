@@ -43,8 +43,8 @@ services:
       INVENTORY_CONNECT_TIMEOUT: ${INVENTORY_CONNECT_TIMEOUT:-2s}
       INVENTORY_READ_TIMEOUT: ${INVENTORY_READ_TIMEOUT:-3s}
       INVENTORY_SERVICE_TOKEN: ${INVENTORY_SERVICE_TOKEN:-}
-      COGNITO_ISSUER_URI: ${COGNITO_ISSUER_URI:-http://localhost:9999/mock-cognito}
-      COGNITO_JWK_SET_URI: ${COGNITO_JWK_SET_URI:-http://localhost:9999/mock-cognito/.well-known/jwks.json}
+      COGNITO_ISSUER_URI: ${COGNITO_ISSUER_URI:-https://cognito-idp.us-east-1.amazonaws.com/us-east-1_DBCBjL67J}
+      COGNITO_JWK_SET_URI: ${COGNITO_JWK_SET_URI:-https://cognito-idp.us-east-1.amazonaws.com/us-east-1_DBCBjL67J/.well-known/jwks.json}
       COGNITO_AUDIENCE: ${COGNITO_AUDIENCE:-agrocenter-api}
       DEV_JWT_SECRET: ${DEV_JWT_SECRET:?Configura DEV_JWT_SECRET en el archivo .env}
       DEV_JWT_ISSUER: ${DEV_JWT_ISSUER:-http://localhost:8081/dev-issuer}
