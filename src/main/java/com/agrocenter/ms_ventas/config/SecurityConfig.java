@@ -46,11 +46,18 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/error"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/ventas", "/api/ventas", "/api/ventas/").hasRole("CLIENTE")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/ventas/mis-pedidos", "/api/ventas/mis-pedidos").hasRole("CLIENTE")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/ventas", "/api/ventas", "/api/ventas/").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/ventas/*", "/api/ventas/*")
-                        .hasAnyRole("CLIENTE", "ADMIN")
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/ventas", "/api/ventas", "/api/ventas/", "/ventas", "/ventas/"
+                        ).hasRole("CLIENTE")
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/ventas/mis-pedidos", "/api/ventas/mis-pedidos", "/ventas/mis-pedidos"
+                        ).hasRole("CLIENTE")
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/ventas", "/api/ventas", "/api/ventas/", "/ventas", "/ventas/"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/ventas/*", "/api/ventas/*", "/ventas/*"
+                        ).hasAnyRole("CLIENTE", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions

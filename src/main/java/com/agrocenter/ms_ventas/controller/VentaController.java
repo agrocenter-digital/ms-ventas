@@ -37,7 +37,7 @@ import java.net.URI;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping({"/api/v1/ventas", "/api/ventas", "/api/ventas/"})
+@RequestMapping({"/api/v1/ventas", "/api/ventas", "/api/ventas/", "/ventas", "/ventas/"})
 @Tag(name = "Ventas", description = "Checkout e historial de ventas")
 public class VentaController {
 
