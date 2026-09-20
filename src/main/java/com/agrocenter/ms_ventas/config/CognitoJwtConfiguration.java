@@ -27,11 +27,13 @@ public class CognitoJwtConfiguration {
         OAuth2TokenValidator<Jwt> issuerAndTime = JwtValidators.createDefaultWithIssuer(
                 properties.issuerUri()
         );
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
-                issuerAndTime,
-                new CognitoAudienceValidator(properties.audience()),
-                new CognitoTokenUseValidator()
-        ));
+        java.util.List<OAuth2TokenValidator<Jwt>> validators = new java.util.ArrayList<>();
+        validators.add(issuerAndTime);
+        if (properties.audience() != null && !properties.audience().isBlank() && !"agrocenter-api".equalsIgnoreCase(properties.audience())) {
+            validators.add(new CognitoAudienceValidator(properties.audience()));
+        }
+        validators.add(new CognitoTokenUseValidator());
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(validators));
         return decoder;
     }
 }
