@@ -21,6 +21,9 @@ public class CognitoAudienceValidator implements OAuth2TokenValidator<Jwt> {
 
     @Override
     public OAuth2TokenValidatorResult validate(Jwt jwt) {
+        if (audience == null || audience.isBlank()) {
+            return OAuth2TokenValidatorResult.success();
+        }
         boolean audienceMatches = jwt.getAudience() != null && jwt.getAudience().contains(audience);
         boolean clientMatches = audience.equals(jwt.getClaimAsString("client_id"));
         return audienceMatches || clientMatches
