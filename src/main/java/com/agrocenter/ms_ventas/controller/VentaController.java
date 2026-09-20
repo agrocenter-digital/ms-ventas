@@ -37,7 +37,7 @@ import java.net.URI;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/ventas")
+@RequestMapping({"/api/v1/ventas", "/api/ventas", "/api/ventas/"})
 @Tag(name = "Ventas", description = "Checkout e historial de ventas")
 public class VentaController {
 
@@ -104,6 +104,9 @@ public class VentaController {
     }
 
     private boolean esAdmin(Authentication authentication) {
+        if (authentication == null) {
+            return false;
+        }
         return authentication.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
     }
