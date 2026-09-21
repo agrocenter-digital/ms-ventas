@@ -37,14 +37,14 @@ import java.net.URI;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping({"/api/v1/ventas", "/api/ventas", "/api/ventas/", "/ventas", "/ventas/"})
+@RequestMapping({"/api/v1/ventas", "/api/ventas", "/api/ventas/", "/ventas", "/ventas/", "/api/checkout", "/checkout", "/api/pedidos", "/pedidos"})
 @Tag(name = "Ventas", description = "Checkout e historial de ventas")
 public class VentaController {
 
     private final VentaService ventaService;
 
     @PostMapping
-    @PreAuthorize("hasRole('CLIENTE')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN')")
     @Operation(summary = "Crear una venta idempotente")
     public ResponseEntity<VentaResponse> crear(
             @RequestHeader("Idempotency-Key") @NotBlank @Size(max = 100) String idempotencyKey,

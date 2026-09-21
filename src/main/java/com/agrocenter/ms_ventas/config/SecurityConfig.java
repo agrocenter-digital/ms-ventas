@@ -48,11 +48,13 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST,
-                                "/api/v1/ventas", "/api/ventas", "/api/ventas/", "/ventas", "/ventas/"
-                        ).hasRole("CLIENTE")
+                                "/api/v1/ventas", "/api/ventas", "/api/ventas/", "/ventas", "/ventas/",
+                                "/api/checkout", "/checkout", "/api/pedidos", "/pedidos"
+                        ).hasAnyRole("CLIENTE", "ADMIN")
                         .requestMatchers(HttpMethod.GET,
-                                "/api/v1/ventas/mis-pedidos", "/api/ventas/mis-pedidos", "/ventas/mis-pedidos"
-                        ).hasRole("CLIENTE")
+                                "/api/v1/ventas/mis-pedidos", "/api/ventas/mis-pedidos", "/ventas/mis-pedidos",
+                                "/api/pedidos/mis-pedidos", "/pedidos/mis-pedidos", "/mis-pedidos"
+                        ).hasAnyRole("CLIENTE", "ADMIN")
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/ventas", "/api/ventas", "/api/ventas/", "/ventas", "/ventas/"
                         ).hasRole("ADMIN")
