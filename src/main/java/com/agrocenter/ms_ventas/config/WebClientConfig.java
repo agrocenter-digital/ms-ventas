@@ -21,10 +21,21 @@ public class WebClientConfig {
                 )
                 .responseTimeout(properties.readTimeout());
 
+        String resolvedUrl = sanitizeBaseUrl(properties.baseUrl());
+
         return WebClient.builder()
-                .baseUrl(properties.baseUrl())
+                .baseUrl(resolvedUrl)
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .build();
+    }
+
+    private String sanitizeBaseUrl(String url) {
+        if (url == null || url.isBlank() || (url.startsWith("${") && url.endsWith("}"))) {
+            return "http://internal-agrocenter-bff-alb:8080";
+        }
+        String clean = url.trim().replaceAll("/+$", "");
+        clean = clean.replaceAll("/api/inventario/?$", "");
+        return clean.replaceAll("/+$", "");
     }
 }
