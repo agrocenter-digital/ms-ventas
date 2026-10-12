@@ -64,6 +64,20 @@ class VentaServiceTest {
     }
 
     @Test
+    void rechazaCotizacionSinPersistirVentaNiDescontarInventario() {
+        CrearVentaRequest request = request(new ItemVentaRequest(10L, 2));
+        when(requestHasher.hash(request.items())).thenReturn(HASH);
+        when(persistenceService.buscarPorIdempotencia(CLIENTE, KEY)).thenReturn(Optional.empty());
+        when(inventoryClient.consultarProducto(10L, TOKEN, CORRELATION))
+                .thenReturn(new InventoryProductResponse(10L, "SKU-COTIZABLE", "Equipo", new BigDecimal("100"), 5, true, true));
+        assertThatThrownBy(() -> ventaService.crear(CLIENTE, TOKEN, KEY, CORRELATION, request))
+                .isInstanceOf(SolicitudInvalidaException.class).hasMessageContaining("requiere cotizacion");
+        verify(persistenceService, never()).crearPendiente(anyString(), anyString(), anyString(), any(), any(), any());
+        verify(inventoryClient, never()).descontarStock(anyLong(), anyInt(), anyString(), anyString(), anyString());
+        verify(inventoryClient, never()).validarDisponibilidad(anyLong(), anyInt(), anyString(), anyString());
+    }
+
+    @Test
     void creaVentaYCalculaTotalConPrecioConfiableDeInventario() {
         CrearVentaRequest request = request(new ItemVentaRequest(10L, 2));
         prepararCreacionBase(request);

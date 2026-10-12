@@ -149,6 +149,9 @@ public class VentaService {
                     correlationId
             );
             validarProducto(producto, item.productoId());
+            if (producto.soloCotizacion()) {
+                throw new SolicitudInvalidaException("PRODUCTO_SOLO_COTIZACION", "El producto " + producto.sku() + " requiere cotizacion comercial");
+            }
             inventoryClient.validarDisponibilidad(
                     item.productoId(),
                     item.cantidad(),

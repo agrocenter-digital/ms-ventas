@@ -8,6 +8,12 @@ public record InventoryProductResponse(
         String nombre,
         BigDecimal precioVenta,
         Integer stockActual,
-        boolean activo
+        boolean activo,
+        boolean soloCotizacion
 ) {
+    public InventoryProductResponse(Long id, String sku, String nombre, BigDecimal precioVenta,
+            Integer stockActual, boolean activo) {
+        this(id, sku, nombre, precioVenta, stockActual, activo, false);
+    }
+
 }
