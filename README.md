@@ -6,20 +6,20 @@ Microservicio responsable de la gestión de pedidos, checkout, persistencia de t
 
 ## 1. Arquitectura y Enrutamiento en AWS
 
-En el entorno productivo de AWS ECS Fargate:
+En el entorno de producción (EC2 Monolítica en subred pública de la VPC por defecto de AWS Academy):
 * **Puerto**: `8082`
-* **Target Group**: `tg-ms-ventas` (Healthy)
-* **Router ALB Interno**: `internal-agrocenter-bff-alb:8080`
-* **Path-Based Routing**: Rutas `/api/ventas/*` direccionadas a `tg-ms-ventas`.
-* **Comunicación con Inventario**: Se comunica mediante REST con `ms-inventario` para validar existencias y ejecutar salidas de stock con clave de idempotencia (`VENTA-<id>`).
+* **Red**: Docker bridge compartida (`agrocenter-network`).
+* **Comunicación Interna**: Resoluble por nombre de contenedor (`http://ms-ventas:8082`).
+* **Comunicación con Inventario**: Se comunica directamente con `ms-inventario` (`http://ms-inventario:8081`) para validar existencias y ejecutar salidas de stock con clave de idempotencia (`VENTA-<id>`).
+* **Persistencia**: Conectado a su base de datos `db_ventas` en PostgreSQL.
 
 ```text
-Frontend (Vercel) -> bff-web (8080)
+Frontend (Vercel) -> bff-web (Puerto 8080 en EC2)
                          |
-                         v (vía ALB interno: /api/ventas/*)
+                         v (red Docker: http://ms-ventas:8082)
                     ms-ventas (Puerto 8082)
                          |---> db_ventas (PostgreSQL)
-                         `---> ms-inventario (Puerto 8081 / salida de stock)
+                         `---> ms-inventario (http://ms-inventario:8081 / salida de stock)
 ```
 
 ---

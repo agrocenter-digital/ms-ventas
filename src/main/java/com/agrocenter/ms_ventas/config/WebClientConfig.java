@@ -32,7 +32,7 @@ public class WebClientConfig {
 
     private String sanitizeBaseUrl(String url) {
         if (url == null || url.isBlank() || (url.startsWith("${") && url.endsWith("}"))) {
-            return "http://internal-agrocenter-bff-alb:8080";
+            return "http://ms-inventario:8081";
         }
         String clean = url.trim().replaceAll("/+$", "");
         clean = clean.replaceAll("/api/inventario/?$", "");
