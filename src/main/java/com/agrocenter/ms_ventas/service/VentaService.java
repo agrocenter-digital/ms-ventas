@@ -11,6 +11,7 @@ import com.agrocenter.ms_ventas.exception.AccesoVentaDenegadoException;
 import com.agrocenter.ms_ventas.exception.ApiException;
 import com.agrocenter.ms_ventas.exception.ConflictoIdempotenciaException;
 import com.agrocenter.ms_ventas.exception.SolicitudInvalidaException;
+import com.agrocenter.ms_ventas.messaging.VentaEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -35,6 +36,7 @@ public class VentaService {
     private final InventoryClient inventoryClient;
     private final VentaPersistenceService persistenceService;
     private final RequestHasher requestHasher;
+    private final VentaEventPublisher ventaEventPublisher;
 
     public VentaCreationResult crear(
             String clienteId,
@@ -106,6 +108,7 @@ public class VentaService {
                     correlationId,
                     confirmada.estado()
             );
+            publicarEvento(confirmada, correlationId);
             return new VentaCreationResult(confirmada, false);
         } catch (ApiException exception) {
             cancelarYCompensar(pendiente.id(), clienteId, descontados, bearerToken, correlationId);
@@ -234,6 +237,19 @@ public class VentaService {
             }
         }
         return completa;
+    }
+
+    private void publicarEvento(VentaResponse confirmada, String correlationId) {
+        try {
+            ventaEventPublisher.publicarVentaConfirmada(confirmada);
+        } catch (RuntimeException exception) {
+            log.error(
+                    "La venta fue confirmada pero el evento no pudo encolarse ventaId={} correlationId={}",
+                    confirmada.id(),
+                    correlationId,
+                    exception
+            );
+        }
     }
 
     private void cancelarYCompensar(
