@@ -47,6 +47,15 @@ public class SecurityConfig {
                                 "/error"
                         ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/ventas/consultas", "/ventas/consultas"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/ventas/consultas", "/ventas/consultas"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH,
+                                "/api/ventas/consultas/*/estado", "/ventas/consultas/*/estado"
+                        ).hasRole("ADMIN")
                         .requestMatchers("/api/ventas/admin/**", "/ventas/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/ventas", "/api/ventas", "/api/ventas/", "/ventas", "/ventas/",
