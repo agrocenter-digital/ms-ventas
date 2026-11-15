@@ -5,6 +5,7 @@ import com.agrocenter.ms_ventas.messaging.audit.AuditoriaEventos;
 import com.agrocenter.ms_ventas.messaging.event.OrdenCompraEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,8 +16,10 @@ public class VentaEventPublisher {
 
     private final KafkaTemplate<String, OrdenCompraEvent> kafkaTemplate;
     private final AuditoriaEventos auditoriaEventos;
+    @Value("${KAFKA_PUBLISHER_ENABLED:true}") private boolean kafkaEnabled = true;
 
     public void publicarVentaConfirmada(VentaResponse venta) {
+        if (!kafkaEnabled) return;
         OrdenCompraEvent event = OrdenCompraEvent.desde(venta);
         String clave = String.valueOf(venta.id());
         try {

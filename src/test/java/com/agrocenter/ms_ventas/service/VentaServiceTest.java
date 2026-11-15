@@ -100,7 +100,7 @@ class VentaServiceTest {
         )).thenReturn(venta(77L, CLIENTE, EstadoVenta.PENDIENTE, "49980.00"));
         when(inventoryClient.descontarStock(10L, 2, "VENTA-77", TOKEN, CORRELATION))
                 .thenReturn(stockResponse(10L, 2));
-        when(persistenceService.confirmar(77L))
+        when(persistenceService.confirmar(77L, CORRELATION))
                 .thenReturn(venta(77L, CLIENTE, EstadoVenta.CONFIRMADA, "49980.00"));
 
         VentaCreationResult result = ventaService.crear(
@@ -177,7 +177,7 @@ class VentaServiceTest {
         )).isInstanceOf(InventarioNoDisponibleException.class);
 
         verify(persistenceService).cancelar(eq(77L), eq("No fue posible confirmar el descuento de inventario"));
-        verify(persistenceService, never()).confirmar(anyLong());
+        verify(persistenceService, never()).confirmar(anyLong(), anyString());
     }
 
     @Test

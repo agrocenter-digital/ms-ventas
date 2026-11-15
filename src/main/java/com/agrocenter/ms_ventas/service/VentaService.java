@@ -100,7 +100,7 @@ public class VentaService {
                 );
                 descontados.add(detalle);
             }
-            VentaResponse confirmada = persistenceService.confirmar(pendiente.id());
+            VentaResponse confirmada = persistenceService.confirmar(pendiente.id(), correlationId);
             log.info(
                     "Venta confirmada ventaId={} clienteId={} correlationId={} estado={}",
                     confirmada.id(),

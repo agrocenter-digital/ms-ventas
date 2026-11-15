@@ -6,6 +6,7 @@ import com.agrocenter.ms_ventas.entity.ConsultaB2B;
 import com.agrocenter.ms_ventas.entity.EstadoConsultaB2B;
 import com.agrocenter.ms_ventas.exception.ConsultaB2BNoEncontradaException;
 import com.agrocenter.ms_ventas.repository.ConsultaB2BRepository;
+import com.agrocenter.ms_ventas.messaging.outbox.OutboxWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import java.util.List;
 public class ConsultaB2BService {
 
     private final ConsultaB2BRepository consultaRepository;
+    private final OutboxWriter outbox;
 
     @Transactional
     public ConsultaB2BResponse crear(CrearConsultaB2BRequest request) {
@@ -29,7 +31,9 @@ public class ConsultaB2BService {
                 request.mensaje().trim(),
                 request.origen()
         );
-        return ConsultaB2BResponse.desde(consultaRepository.save(consulta));
+        ConsultaB2B guardada = consultaRepository.save(consulta);
+        outbox.registrarConsultaCreada(guardada);
+        return ConsultaB2BResponse.desde(guardada);
     }
 
     @Transactional(readOnly = true)
@@ -42,9 +46,13 @@ public class ConsultaB2BService {
 
     @Transactional
     public ConsultaB2BResponse actualizarEstado(Long id, EstadoConsultaB2B estado) {
-        ConsultaB2B consulta = consultaRepository.findById(id)
+        ConsultaB2B consulta = consultaRepository.findByIdForUpdate(id)
                 .orElseThrow(ConsultaB2BNoEncontradaException::new);
-        consulta.actualizarEstado(estado);
+        EstadoConsultaB2B anterior = consulta.getEstado();
+        if (anterior != estado) {
+            consulta.actualizarEstado(estado);
+            outbox.registrarConsultaEstadoActualizado(consulta, anterior);
+        }
         return ConsultaB2BResponse.desde(consulta);
     }
 

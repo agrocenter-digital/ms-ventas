@@ -7,6 +7,7 @@ import com.agrocenter.ms_ventas.entity.Venta;
 import com.agrocenter.ms_ventas.exception.VentaNoEncontradaException;
 import com.agrocenter.ms_ventas.mapper.VentaMapper;
 import com.agrocenter.ms_ventas.repository.VentaRepository;
+import com.agrocenter.ms_ventas.messaging.outbox.OutboxWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,7 @@ public class VentaPersistenceService {
 
     private final VentaRepository ventaRepository;
     private final VentaMapper mapper;
+    private final OutboxWriter outboxWriter;
 
     @Transactional(readOnly = true)
     public Optional<IdempotencyRecord> buscarPorIdempotencia(String clienteId, String key) {
@@ -52,10 +54,12 @@ public class VentaPersistenceService {
     }
 
     @Transactional
-    public VentaResponse confirmar(Long ventaId) {
+    public VentaResponse confirmar(Long ventaId, String correlationId) {
         Venta venta = buscarEntidad(ventaId);
         venta.confirmar();
-        return mapper.toResponse(venta);
+        VentaResponse response = mapper.toResponse(venta);
+        outboxWriter.registrarVentaConfirmada(response, correlationId);
+        return response;
     }
 
     @Transactional

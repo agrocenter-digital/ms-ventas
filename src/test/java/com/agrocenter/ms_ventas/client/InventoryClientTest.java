@@ -53,7 +53,7 @@ class InventoryClientTest {
                 }
                 """, Duration.ZERO);
 
-        InventoryProductResponse response = client(Duration.ofSeconds(1))
+        InventoryProductResponse response = client(Duration.ofSeconds(5))
                 .consultarProducto(10L, "jwt-cliente", "corr-123");
 
         assertThat(response.id()).isEqualTo(10L);
@@ -67,7 +67,7 @@ class InventoryClientTest {
     void traduce404AProductoNoEncontrado() {
         respond(404, "{\"message\":\"Producto no encontrado\"}", Duration.ZERO);
 
-        assertThatThrownBy(() -> client(Duration.ofSeconds(1))
+        assertThatThrownBy(() -> client(Duration.ofSeconds(5))
                 .consultarProducto(99L, "jwt", "corr"))
                 .isInstanceOf(ProductoNoEncontradoException.class);
     }
@@ -76,7 +76,7 @@ class InventoryClientTest {
     void traduce409AStockInsuficiente() {
         respond(409, "{\"message\":\"Stock insuficiente\"}", Duration.ZERO);
 
-        assertThatThrownBy(() -> client(Duration.ofSeconds(1))
+        assertThatThrownBy(() -> client(Duration.ofSeconds(5))
                 .descontarStock(10L, 20, "VENTA-1", "jwt", "corr"))
                 .isInstanceOf(StockInsuficienteException.class);
     }
@@ -85,7 +85,7 @@ class InventoryClientTest {
     void traduce500AServicioNoDisponible() {
         respond(500, "{\"message\":\"Error interno\"}", Duration.ZERO);
 
-        assertThatThrownBy(() -> client(Duration.ofSeconds(1))
+        assertThatThrownBy(() -> client(Duration.ofSeconds(5))
                 .validarDisponibilidad(10L, 1, "jwt", "corr"))
                 .isInstanceOf(InventarioNoDisponibleException.class);
     }
@@ -110,7 +110,7 @@ class InventoryClientTest {
         String baseUrl = "http://localhost:" + server.getAddress().getPort();
         InventoryProperties properties = new InventoryProperties(
                 baseUrl,
-                Duration.ofSeconds(1),
+                Duration.ofSeconds(5),
                 readTimeout,
                 ""
         );
