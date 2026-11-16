@@ -1,4 +1,4 @@
-name: Build and Push ms-ventas to Docker Hub
+name: Publicar imagen ms-ventas por commit
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-and-push:
-    name: Build Docker Image and Push & Deploy
+    name: Publicar imagen sin despliegue
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,16 +22,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/agrocenter-ms-ventas:latest
-
-      # Paso para actualizar automáticamente en la EC2 por SSH
-      - name: Deploy to AWS EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/agrocenter-deploy
-            docker compose pull ms-ventas
-            docker compose up -d ms-ventas
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/agrocenter-ms-ventas:sha-${{ github.sha }}
