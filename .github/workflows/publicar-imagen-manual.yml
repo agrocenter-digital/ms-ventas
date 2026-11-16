@@ -13,10 +13,6 @@ jobs:
     timeout-minutes: 25
     env:
       STREAMING_ENABLED: "false"
-      KAFKA_PUBLISHER_ENABLED: "false"
-      SPRING_KAFKA_LISTENER_AUTO_STARTUP: "false"
-      SPRING_KAFKA_ADMIN_AUTO_CREATE: "false"
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: "127.0.0.1:1"
       AWS_EC2_METADATA_DISABLED: "true"
     steps:
       - uses: actions/checkout@v4

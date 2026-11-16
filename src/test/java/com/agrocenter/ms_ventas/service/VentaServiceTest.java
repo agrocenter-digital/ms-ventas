@@ -15,7 +15,6 @@ import com.agrocenter.ms_ventas.exception.ConflictoIdempotenciaException;
 import com.agrocenter.ms_ventas.exception.InventarioNoDisponibleException;
 import com.agrocenter.ms_ventas.exception.SolicitudInvalidaException;
 import com.agrocenter.ms_ventas.exception.StockInsuficienteException;
-import com.agrocenter.ms_ventas.messaging.VentaEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,9 +56,6 @@ class VentaServiceTest {
     @Mock
     private RequestHasher requestHasher;
 
-    @Mock
-    private VentaEventPublisher ventaEventPublisher;
-
     private VentaService ventaService;
 
     @BeforeEach
@@ -67,8 +63,7 @@ class VentaServiceTest {
         ventaService = new VentaService(
                 inventoryClient,
                 persistenceService,
-                requestHasher,
-                ventaEventPublisher
+                requestHasher
         );
     }
 
